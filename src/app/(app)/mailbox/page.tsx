@@ -1,4 +1,4 @@
-import { AuthGate } from "@/components/shared/AuthGate";
+import { getCurrentProfile } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { MailboxForm } from "./MailboxForm";
 import { Card } from "@/components/shared/Card";
@@ -8,35 +8,37 @@ import { MAILBOX_STATUS_LABELS, MAILBOX_STATUS_COLORS } from "@/lib/mailbox-data
 import type { CloverMailbox, PublicResult } from "@/types/database";
 import Link from "next/link";
 
-export default function MailboxPage() {
-  return (
-    <AuthGate next="/mailbox" context="mailbox">
-      {(profile) => <MailboxPageContent userId={profile.id} />}
-    </AuthGate>
-  );
-}
-
-async function MailboxPageContent({ userId }: { userId: string }) {
+// Viewing this page never requires login — only submitting the form or
+// hearting a result does (handled inline via the login modal). This lets
+// anyone browse the whole product before deciding to sign up.
+export default async function MailboxPage() {
+  const profile = await getCurrentProfile();
+  const userId = profile?.id ?? null;
   const supabase = await createClient();
 
-  const { data: myEntries } = await supabase
-    .from("clover_mailbox")
-    .select("*")
-    .eq("user_id", userId)
-    .order("created_at", { ascending: false });
+  const [{ data: myEntries }, { data: publicResults }, { data: hearts }] = await Promise.all([
+    userId
+      ? supabase
+          .from("clover_mailbox")
+          .select("*")
+          .eq("user_id", userId)
+          .order("created_at", { ascending: false })
+      : Promise.resolve({ data: null }),
+    supabase
+      .from("public_results")
+      .select("*")
+      .eq("is_public", true)
+      .order("created_at", { ascending: false })
+      .limit(6),
+    userId
+      ? supabase
+          .from("hearts")
+          .select("target_id")
+          .eq("user_id", userId)
+          .eq("target_type", "public_result")
+      : Promise.resolve({ data: null }),
+  ]);
 
-  const { data: publicResults } = await supabase
-    .from("public_results")
-    .select("*")
-    .eq("is_public", true)
-    .order("created_at", { ascending: false })
-    .limit(6);
-
-  const { data: hearts } = await supabase
-    .from("hearts")
-    .select("target_id")
-    .eq("user_id", userId)
-    .eq("target_type", "public_result");
   const heartedIds = new Set((hearts ?? []).map((h: { target_id: string }) => h.target_id));
 
   return (
@@ -49,7 +51,11 @@ async function MailboxPageContent({ userId }: { userId: string }) {
       {/* My submissions */}
       <section className="mt-10">
         <h2 className="text-[15px] font-bold text-text-dark mb-4">내가 남긴 고민</h2>
-        {!myEntries || myEntries.length === 0 ? (
+        {!userId ? (
+          <Card className="p-6 text-center text-[13px] text-text-gray">
+            로그인하면 내가 남긴 고민을 여기서 확인할 수 있어요.
+          </Card>
+        ) : !myEntries || myEntries.length === 0 ? (
           <Card className="p-6 text-center text-[13px] text-text-gray">
             아직 남긴 고민이 없어요. 위 양식으로 첫 고민을 남겨보세요.
           </Card>

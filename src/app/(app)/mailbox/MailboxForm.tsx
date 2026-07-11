@@ -8,10 +8,12 @@ import { CloverMascot } from "@/components/icons/CloverMascot";
 import { createClient } from "@/lib/supabase/client";
 import { awardGrowth } from "@/lib/supabase-actions";
 import { INDUSTRY_OPTIONS, REQUESTED_INDUSTRY_CHIPS } from "@/lib/mailbox-data";
+import { useLoginModal } from "@/lib/login-modal-context";
 import { Lock, Mail, CheckCircle2 } from "lucide-react";
 
-export function MailboxForm({ userId }: { userId: string }) {
+export function MailboxForm({ userId }: { userId: string | null }) {
   const router = useRouter();
+  const { openForAction } = useLoginModal();
   const [industry, setIndustry] = useState("");
   const [painTitle, setPainTitle] = useState("");
   const [desiredOutcome, setDesiredOutcome] = useState("");
@@ -29,6 +31,12 @@ export function MailboxForm({ userId }: { userId: string }) {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!canSubmit || submitting) return;
+
+    if (!userId) {
+      openForAction("mailbox");
+      return;
+    }
+
     setSubmitting(true);
 
     const supabase = createClient();
