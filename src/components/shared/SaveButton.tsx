@@ -1,11 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { Bookmark, BookmarkCheck } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
 import { awardGrowth } from "@/lib/supabase-actions";
+import { useLoginModal } from "@/lib/login-modal-context";
 
 export function SaveButton({
   recipeId,
@@ -18,13 +18,13 @@ export function SaveButton({
   userId: string | null;
   variant?: "icon" | "full";
 }) {
-  const router = useRouter();
+  const { openForAction } = useLoginModal();
   const [saved, setSaved] = useState(initialSaved);
   const [busy, setBusy] = useState(false);
 
   async function toggle() {
     if (!userId) {
-      router.push(`/login?next=${encodeURIComponent(window.location.pathname)}`);
+      openForAction("recipe_save");
       return;
     }
     if (busy) return;

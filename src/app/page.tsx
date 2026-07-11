@@ -3,6 +3,7 @@ import { TopNav } from "@/components/shared/TopNav";
 import { Button } from "@/components/shared/Button";
 import { Card } from "@/components/shared/Card";
 import { CloverMascot } from "@/components/icons/CloverMascot";
+import { OpenLoginModalButton } from "@/components/shared/OpenLoginModalButton";
 import { Briefcase, Store, Users2, Mailbox, ArrowRight } from "lucide-react";
 
 const TARGET_CARDS = [
@@ -99,9 +100,9 @@ export default function LandingPage() {
               초기 100명에게만 드리는 특별한 혜택이에요. 지금 가입하면 평생 함께해요.
             </p>
           </div>
-          <Button href="/login" size="lg" className="shrink-0">
+          <OpenLoginModalButton className="shrink-0">
             첫 클로버 100인 되기
-          </Button>
+          </OpenLoginModalButton>
         </Card>
       </section>
 

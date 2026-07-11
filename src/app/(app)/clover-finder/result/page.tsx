@@ -14,7 +14,9 @@ import {
 import { getRecommendedRecipeCategories } from "@/lib/clover-finder-engine";
 import { createClient } from "@/lib/supabase/client";
 import { awardGrowth } from "@/lib/supabase-actions";
-import type { Recipe } from "@/types/database";
+import { useLoginModal } from "@/lib/login-modal-context";
+import type { RecipeListItem } from "@/types/database";
+import { RECIPE_LIST_COLUMNS } from "@/types/database";
 import { Bookmark, BookmarkCheck, Mailbox, RotateCcw } from "lucide-react";
 
 interface StoredFinderState {
@@ -23,8 +25,9 @@ interface StoredFinderState {
 }
 
 export default function CloverFinderResultPage() {
+  const { openForAction } = useLoginModal();
   const [state, setState] = useState<StoredFinderState | null | undefined>(undefined);
-  const [recipes, setRecipes] = useState<Recipe[]>([]);
+  const [recipes, setRecipes] = useState<RecipeListItem[]>([]);
   const [savedIds, setSavedIds] = useState<Set<string>>(new Set());
   const [userId, setUserId] = useState<string | null>(null);
   const [loadingRecipes, setLoadingRecipes] = useState(true);
@@ -58,12 +61,12 @@ export default function CloverFinderResultPage() {
 
       const { data } = await supabase
         .from("recipes")
-        .select("*")
+        .select(RECIPE_LIST_COLUMNS)
         .eq("is_public", true)
         .overlaps("categories", categories)
         .limit(3);
 
-      setRecipes((data as Recipe[]) ?? []);
+      setRecipes((data as unknown as RecipeListItem[]) ?? []);
       setLoadingRecipes(false);
 
       if (user) {
@@ -99,7 +102,7 @@ export default function CloverFinderResultPage() {
 
   async function handleSave(recipeId: string) {
     if (!userId) {
-      window.location.href = `/login?next=${encodeURIComponent("/clover-finder/result")}`;
+      openForAction("finder_result_save");
       return;
     }
     const supabase = createClient();
@@ -223,9 +226,12 @@ export default function CloverFinderResultPage() {
           <p className="text-[13px] text-text-gray">
             로그인하면 진단 결과와 저장한 레시피가 나의 클로버 카드에 기록돼요.
           </p>
-          <Button href="/login?next=/clover-finder/result" size="sm" className="mt-3">
+          <button
+            onClick={() => openForAction("finder_result_save")}
+            className="inline-flex items-center justify-center mt-3 px-5 py-2.5 rounded-full text-[13.5px] font-semibold bg-primary text-white hover:bg-primary-deep"
+          >
             로그인하고 저장하기
-          </Button>
+          </button>
         </Card>
       )}
 

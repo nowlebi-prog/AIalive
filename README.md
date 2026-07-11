@@ -19,6 +19,11 @@
 2. **SQL Editor**에서 아래 순서로 실행
    1. `supabase/schema.sql` — 테이블 + 트리거 (profiles 자동 생성 포함)
    2. `supabase/rls.sql` — Row Level Security 정책
+   3. `supabase/schema_sprint2.sql` — 성장도 지급 RPC
+   4. `supabase/schema_sprint4.sql` — 관리자 저장 수 집계 정책
+   5. `supabase/schema_sprint5.sql` — 이메일/비번 가입 + 전화번호 중복확인
+   6. `supabase/create_admin.sql` — 관리자 계정 생성 (adminmin@clover.local)
+   7. `supabase/seed.sql` — 샘플 레시피 (선택)
    3. `supabase/seed.sql` — 샘플 레시피 (선택)
 3. **Authentication → Providers → Kakao** 활성화
    - Kakao Developers에서 앱 생성 → REST API 키, Client Secret 발급
@@ -44,9 +49,15 @@ npm run dev
 
 `http://localhost:3000` 접속.
 
-## 4. 관리자 계정 만들기
+## 4. 관리자 계정
 
-카카오 로그인으로 최초 가입 후, Supabase SQL Editor에서:
+`supabase/create_admin.sql`을 실행하면 아래 계정이 바로 관리자 권한으로 생성돼요.
+
+- 로그인 방식: 사이트 로그인 모달 → "또는 아이디·비번으로 시작하기" → 로그인 탭
+- 아이디: `adminmin@clover.local`
+- 비밀번호: `Dldmsql9898*`
+
+카카오로 가입한 계정을 관리자로 바꾸고 싶다면:
 
 ```sql
 update profiles set role = 'admin' where email = '본인 이메일';

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { CloverLogomark } from "@/components/icons/CloverLogomark";
 import { Button } from "@/components/shared/Button";
+import { OpenLoginModalButton } from "@/components/shared/OpenLoginModalButton";
 
 export function TopNav({ showLoginCta = true }: { showLoginCta?: boolean }) {
   return (
@@ -14,9 +15,14 @@ export function TopNav({ showLoginCta = true }: { showLoginCta?: boolean }) {
           </div>
         </Link>
         {showLoginCta && (
-          <Button href="/clover-map" variant="secondary" size="sm">
-            둘러보기
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button href="/clover-map" variant="secondary" size="sm">
+              둘러보기
+            </Button>
+            <OpenLoginModalButton className="px-4 py-2 text-[13px]">
+              클로버 등록
+            </OpenLoginModalButton>
+          </div>
         )}
       </div>
     </header>

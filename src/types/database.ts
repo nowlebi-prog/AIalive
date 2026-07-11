@@ -13,6 +13,7 @@ export type GrowthStage =
 export interface Profile {
   id: string;
   email: string | null;
+  phone: string | null;
   nickname: string | null;
   avatar_url: string | null;
   provider: string | null;
@@ -129,3 +130,30 @@ export interface GrowthLog {
 // Can be replaced later with `supabase gen types typescript`.
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type Database = any;
+
+/**
+ * Trimmed field set for list/browse views (Clover Map, Finder results).
+ * Detail pages fetch the full `Recipe` row instead — keeps list payloads small.
+ */
+export type RecipeListItem = Pick<
+  Recipe,
+  | "id"
+  | "title"
+  | "slug"
+  | "summary"
+  | "target_users"
+  | "categories"
+  | "tools"
+  | "difficulty"
+  | "estimated_time"
+  | "thumbnail_url"
+  | "is_premium"
+  | "save_count"
+  | "heart_count"
+  | "view_count"
+  | "created_at"
+>;
+
+export const RECIPE_LIST_COLUMNS =
+  "id, title, slug, summary, target_users, categories, tools, difficulty, estimated_time, thumbnail_url, is_premium, save_count, heart_count, view_count, created_at";
+

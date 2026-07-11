@@ -24,6 +24,7 @@ export default async function AdminUsersPage() {
               <th className="px-5 py-3 font-medium">클로버 번호</th>
               <th className="px-5 py-3 font-medium">닉네임</th>
               <th className="px-5 py-3 font-medium">이메일</th>
+              <th className="px-5 py-3 font-medium">전화번호</th>
               <th className="px-5 py-3 font-medium">성장도</th>
               <th className="px-5 py-3 font-medium">가입일</th>
               <th className="px-5 py-3 font-medium">권한</th>
@@ -37,6 +38,7 @@ export default async function AdminUsersPage() {
                 </td>
                 <td className="px-5 py-3 text-text-dark font-medium">{u.nickname ?? "-"}</td>
                 <td className="px-5 py-3 text-text-gray">{u.email ?? "-"}</td>
+                <td className="px-5 py-3 text-text-gray">{u.phone ?? "-"}</td>
                 <td className="px-5 py-3 text-text-gray">{u.growth_points.toLocaleString()}P</td>
                 <td className="px-5 py-3 text-text-gray">
                   {new Date(u.created_at).toISOString().slice(0, 10)}

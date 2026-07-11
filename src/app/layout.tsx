@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { Providers } from "@/components/shared/Providers";
 
 export const metadata: Metadata = {
   title: "Clover Desk | AI 시대에서 살아남기",
@@ -14,7 +15,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ko" className="h-full antialiased">
-      <body className="min-h-full bg-mint-bg text-text-dark">{children}</body>
+      <body className="min-h-full bg-mint-bg text-text-dark">
+        <Providers>{children}</Providers>
+      </body>
     </html>
   );
 }

@@ -1,9 +1,11 @@
+import { Suspense } from "react";
 import { TopNav } from "@/components/shared/TopNav";
 import { Card } from "@/components/shared/Card";
 import { Button } from "@/components/shared/Button";
 import { CloverMascot } from "@/components/icons/CloverMascot";
 import { CloverLogomark } from "@/components/icons/CloverLogomark";
 import { KakaoLoginButton, NaverLoginButton } from "@/components/shared/LoginButtons";
+import { LoginPageEmailSection } from "./LoginPageEmailSection";
 import { Shield, BookOpen, MessageCircleHeart } from "lucide-react";
 
 export default function LoginPage() {
@@ -45,6 +47,10 @@ export default function LoginPage() {
             <KakaoLoginButton />
             <NaverLoginButton />
           </div>
+
+          <Suspense fallback={null}>
+            <LoginPageEmailSection />
+          </Suspense>
 
           <div className="grid grid-cols-3 gap-3 mt-8 pt-7 border-t border-border-soft text-center">
             <BenefitItem

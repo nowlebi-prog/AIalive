@@ -1,7 +1,13 @@
 import { notFound } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+import { createPublicClient } from "@/lib/supabase/public";
 import { RecipeDetailClient } from "./RecipeDetailClient";
 import type { Recipe, RecipeStep } from "@/types/database";
+
+// Public, cacheable content: no cookies/session are read here, so this page
+// can be statically generated and revalidated on an interval instead of
+// hitting the database on every request (principle: light, cache-friendly
+// public pages). Personalized save/heart state is fetched client-side instead.
+export const revalidate = 300; // 5 minutes
 
 export default async function RecipeDetailPage({
   params,
@@ -9,7 +15,7 @@ export default async function RecipeDetailPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const supabase = await createClient();
+  const supabase = createPublicClient();
 
   const { data: recipe } = await supabase
     .from("recipes")
@@ -26,46 +32,10 @@ export default async function RecipeDetailPage({
     .eq("recipe_id", recipe.id)
     .order("step_order", { ascending: true });
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  let saved = false;
-  let hearted = false;
-
-  if (user) {
-    const { data: bookmark } = await supabase
-      .from("bookmarks")
-      .select("id")
-      .eq("user_id", user.id)
-      .eq("recipe_id", recipe.id)
-      .maybeSingle();
-    saved = !!bookmark;
-
-    const { data: heart } = await supabase
-      .from("hearts")
-      .select("id")
-      .eq("user_id", user.id)
-      .eq("target_type", "recipe")
-      .eq("target_id", recipe.id)
-      .maybeSingle();
-    hearted = !!heart;
-  }
-
-  // Fire-and-forget view count increment (best-effort, not critical if it races).
-  supabase
-    .from("recipes")
-    .update({ view_count: (recipe.view_count ?? 0) + 1 })
-    .eq("id", recipe.id)
-    .then(() => {});
+  // View counts are intentionally not tracked in the MVP (see project principles:
+  // avoid a write on every read). Can be added later as a batched/async job.
 
   return (
-    <RecipeDetailClient
-      recipe={recipe as Recipe}
-      steps={(steps as RecipeStep[]) ?? []}
-      userId={user?.id ?? null}
-      initialSaved={saved}
-      initialHearted={hearted}
-    />
+    <RecipeDetailClient recipe={recipe as Recipe} steps={(steps as RecipeStep[]) ?? []} />
   );
 }

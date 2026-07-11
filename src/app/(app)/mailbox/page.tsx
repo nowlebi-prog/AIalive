@@ -10,7 +10,7 @@ import Link from "next/link";
 
 export default function MailboxPage() {
   return (
-    <AuthGate next="/mailbox">
+    <AuthGate next="/mailbox" context="mailbox">
       {(profile) => <MailboxPageContent userId={profile.id} />}
     </AuthGate>
   );

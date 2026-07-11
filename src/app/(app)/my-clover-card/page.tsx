@@ -8,7 +8,7 @@ import Link from "next/link";
 
 export default function MyCloverCardPage() {
   return (
-    <AuthGate next="/my-clover-card">
+    <AuthGate next="/my-clover-card" context="clover_card">
       {(profile) => <MyCloverCardContent profile={profile} />}
     </AuthGate>
   );

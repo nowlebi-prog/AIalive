@@ -15,6 +15,7 @@ function toStepInput(s?: RecipeStep): StepInput {
     checklist: (s?.checklist ?? []).map((c) => c.label),
     prompt_text: s?.prompt_text ?? "",
     tip: s?.tip ?? "",
+    screenshot_urls: s?.screenshot_urls ?? [],
   };
 }
 
@@ -28,6 +29,7 @@ export function RecipeForm({
   steps?: RecipeStep[];
 }) {
   const [title, setTitle] = useState(recipe?.title ?? "");
+  const [slug, setSlug] = useState(recipe?.slug ?? "");
   const [summary, setSummary] = useState(recipe?.summary ?? "");
   const [targetUsers, setTargetUsers] = useState<string[]>(recipe?.target_users ?? []);
   const [categories, setCategories] = useState<string[]>(recipe?.categories ?? []);
@@ -43,6 +45,20 @@ export function RecipeForm({
   );
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
+  const [slugTouched, setSlugTouched] = useState(mode === "edit");
+
+  function handleTitleChange(value: string) {
+    setTitle(value);
+    if (!slugTouched) {
+      setSlug(
+        value
+          .trim()
+          .toLowerCase()
+          .replace(/[^a-z0-9가-힣\s-]/g, "")
+          .replace(/\s+/g, "-")
+      );
+    }
+  }
 
   function toggleFrom(list: string[], setList: (v: string[]) => void, value: string) {
     setList(list.includes(value) ? list.filter((v) => v !== value) : [...list, value]);
@@ -66,6 +82,7 @@ export function RecipeForm({
 
     const input: RecipeFormInput = {
       title,
+      slug,
       summary,
       target_users: targetUsers,
       categories,
@@ -104,10 +121,23 @@ export function RecipeForm({
         <LabeledField label="제목" required>
           <input
             value={title}
-            onChange={(e) => setTitle(e.target.value)}
+            onChange={(e) => handleTitleChange(e.target.value)}
             required
             className="w-full px-4 py-2.5 rounded-xl border border-border-soft text-[13.5px] outline-none focus:border-primary"
             placeholder="예: 3시간 만에 개인 홈페이지 만들기"
+          />
+        </LabeledField>
+
+        <LabeledField label="slug" required hint={slug ? `/recipes/${slug}` : "URL에 사용될 영문/숫자 조합"}>
+          <input
+            value={slug}
+            onChange={(e) => {
+              setSlugTouched(true);
+              setSlug(e.target.value);
+            }}
+            required
+            placeholder="예: personal-homepage-in-3-hours"
+            className="w-full px-4 py-2.5 rounded-xl border border-border-soft text-[13.5px] outline-none focus:border-primary font-mono"
           />
         </LabeledField>
 
@@ -245,6 +275,15 @@ export function RecipeForm({
                 onChange={(e) => updateStep(i, { tip: e.target.value })}
                 placeholder="실험자 팁 (선택)"
                 className="w-full px-3.5 py-2 rounded-lg border border-border-soft text-[13px] outline-none focus:border-primary"
+              />
+              <textarea
+                value={step.screenshot_urls.join("\n")}
+                onChange={(e) =>
+                  updateStep(i, { screenshot_urls: e.target.value.split("\n").map((s) => s.trim()).filter(Boolean) })
+                }
+                placeholder={"진행 캡처 이미지 URL (한 줄에 하나씩, 선택)\nhttps://..."}
+                rows={2}
+                className="w-full px-3.5 py-2 rounded-lg border border-border-soft text-[13px] outline-none focus:border-primary resize-none"
               />
             </div>
           </div>

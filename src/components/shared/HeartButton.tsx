@@ -1,11 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { Heart } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
 import { awardGrowth } from "@/lib/supabase-actions";
+import { useLoginModal } from "@/lib/login-modal-context";
 
 export function HeartButton({
   targetType,
@@ -22,14 +22,14 @@ export function HeartButton({
   userId: string | null;
   size?: "sm" | "md";
 }) {
-  const router = useRouter();
+  const { openForAction } = useLoginModal();
   const [active, setActive] = useState(initialActive);
   const [count, setCount] = useState(initialCount);
   const [busy, setBusy] = useState(false);
 
   async function toggle() {
     if (!userId) {
-      router.push(`/login?next=${encodeURIComponent(window.location.pathname)}`);
+      openForAction("heart");
       return;
     }
     if (busy) return;
@@ -44,12 +44,22 @@ export function HeartButton({
       const { error } = await supabase
         .from("hearts")
         .insert({ user_id: userId, target_type: targetType, target_id: targetId });
-      if (!error) await awardGrowth("heart_received");
+      if (!error) {
+        await awardGrowth("heart_received");
+      } else {
+        // Insert failed (e.g. already hearted elsewhere) — revert optimistic UI.
+        setActive(false);
+        setCount((c) => c - 1);
+      }
     } else {
-      await supabase
+      const { error } = await supabase
         .from("hearts")
         .delete()
         .match({ user_id: userId, target_type: targetType, target_id: targetId });
+      if (error) {
+        setActive(true);
+        setCount((c) => c + 1);
+      }
     }
     setBusy(false);
   }

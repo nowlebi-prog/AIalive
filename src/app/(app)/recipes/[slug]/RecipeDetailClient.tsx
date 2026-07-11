@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Card } from "@/components/shared/Card";
 import { Button } from "@/components/shared/Button";
@@ -8,27 +8,57 @@ import { SaveButton } from "@/components/shared/SaveButton";
 import { HeartButton } from "@/components/shared/HeartButton";
 import { CloverMascot } from "@/components/icons/CloverMascot";
 import { awardGrowth } from "@/lib/supabase-actions";
+import { createClient } from "@/lib/supabase/client";
 import type { Recipe, RecipeStep } from "@/types/database";
 import { Copy, Check, ChevronRight, ChevronLeft, MessageCircle, PartyPopper } from "lucide-react";
 
 export function RecipeDetailClient({
   recipe,
   steps,
-  userId,
-  initialSaved,
-  initialHearted,
 }: {
   recipe: Recipe;
   steps: RecipeStep[];
-  userId: string | null;
-  initialSaved: boolean;
-  initialHearted: boolean;
 }) {
   const [activeIndex, setActiveIndex] = useState(0);
   const [checklistState, setChecklistState] = useState<Record<string, boolean>>({});
   const [copied, setCopied] = useState(false);
   const [completed, setCompleted] = useState(false);
   const [awarding, setAwarding] = useState(false);
+
+  // Personalized state (who's logged in, have they saved/hearted this recipe)
+  // is fetched client-side so the page itself stays static/cacheable.
+  const [userId, setUserId] = useState<string | null>(null);
+  const [initialSaved, setInitialSaved] = useState(false);
+  const [initialHearted, setInitialHearted] = useState(false);
+
+  useEffect(() => {
+    const supabase = createClient();
+    (async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) return;
+      setUserId(user.id);
+
+      const [{ data: bookmark }, { data: heart }] = await Promise.all([
+        supabase
+          .from("bookmarks")
+          .select("id")
+          .eq("user_id", user.id)
+          .eq("recipe_id", recipe.id)
+          .maybeSingle(),
+        supabase
+          .from("hearts")
+          .select("id")
+          .eq("user_id", user.id)
+          .eq("target_type", "recipe")
+          .eq("target_id", recipe.id)
+          .maybeSingle(),
+      ]);
+      setInitialSaved(!!bookmark);
+      setInitialHearted(!!heart);
+    })();
+  }, [recipe.id]);
 
   const step = steps[activeIndex];
   const isLastStep = activeIndex === steps.length - 1;
@@ -198,6 +228,20 @@ export function RecipeDetailClient({
                       {copied ? <Check size={13} className="text-primary" /> : <Copy size={13} />}
                     </button>
                   </div>
+                </div>
+              )}
+
+              {step.screenshot_urls && step.screenshot_urls.length > 0 && (
+                <div className="mt-5 grid sm:grid-cols-2 gap-3">
+                  {step.screenshot_urls.map((url, i) => (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      key={i}
+                      src={url}
+                      alt={`${step.title} 진행 캡처 ${i + 1}`}
+                      className="w-full rounded-xl border border-border-soft object-cover"
+                    />
+                  ))}
                 </div>
               )}
 

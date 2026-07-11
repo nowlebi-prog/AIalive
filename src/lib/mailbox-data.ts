@@ -22,7 +22,7 @@ export const REQUESTED_INDUSTRY_CHIPS = [
 export const MAILBOX_STATUS_LABELS: Record<string, string> = {
   received: "접수",
   reviewing: "검토 중",
-  in_progress: "레시피 제작 중",
+  in_progress: "레시피 준비 중",
   completed: "반영 완료",
 };
 
