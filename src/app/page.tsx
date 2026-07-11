@@ -4,6 +4,7 @@ import { Button } from "@/components/shared/Button";
 import { Card } from "@/components/shared/Card";
 import { CloverMascot } from "@/components/icons/CloverMascot";
 import { OpenLoginModalButton } from "@/components/shared/OpenLoginModalButton";
+import { AdminLoginWidget } from "@/components/shared/AdminLoginWidget";
 import { Briefcase, Store, Users2, Mailbox, ArrowRight } from "lucide-react";
 
 const TARGET_CARDS = [
@@ -202,6 +203,8 @@ export default function LandingPage() {
           <p>무섭게 따라가기보다, 내 일에 맞는 작은 해결책을 하나씩 발견하는 여정.</p>
         </div>
       </footer>
+
+      <AdminLoginWidget />
     </div>
   );
 }
