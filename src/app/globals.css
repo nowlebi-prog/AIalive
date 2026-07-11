@@ -1,0 +1,75 @@
+@import "tailwindcss";
+@import "pretendard/dist/web/variable/pretendardvariable-dynamic-subset.css";
+
+:root {
+  /* Clover Desk color system */
+  --color-primary-green: #2f9b67;
+  --color-deep-green: #176b45;
+  --color-soft-green: #dff4e8;
+  --color-mint-bg: #f3fbf6;
+  --color-pale-green: #eef8f1;
+  --color-light-cream: #fffdf7;
+  --color-warm-beige: #f7f0e5;
+  --color-text-dark: #1f2933;
+  --color-text-gray: #6b7280;
+  --color-border: #e5ece7;
+  --color-success: #38a169;
+  --color-warning: #f5b84b;
+  --color-heart: #f4728a;
+
+  --background: var(--color-mint-bg);
+  --foreground: var(--color-text-dark);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  --color-primary: var(--color-primary-green);
+  --color-primary-deep: var(--color-deep-green);
+  --color-soft-green: var(--color-soft-green);
+  --color-mint-bg: var(--color-mint-bg);
+  --color-pale-green: var(--color-pale-green);
+  --color-cream: var(--color-light-cream);
+  --color-beige: var(--color-warm-beige);
+  --color-text-dark: var(--color-text-dark);
+  --color-text-gray: var(--color-text-gray);
+  --color-border-soft: var(--color-border);
+  --color-success: var(--color-success);
+  --color-warning: var(--color-warning);
+  --color-heart: var(--color-heart);
+
+  --font-sans: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont,
+    system-ui, sans-serif;
+
+  --radius-card: 20px;
+  --radius-card-sm: 14px;
+  --radius-pill: 999px;
+
+  --shadow-soft: 0 4px 20px rgba(47, 155, 103, 0.08);
+  --shadow-card: 0 2px 12px rgba(23, 107, 69, 0.06);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+* {
+  border-color: var(--color-border);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-primary-green);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
