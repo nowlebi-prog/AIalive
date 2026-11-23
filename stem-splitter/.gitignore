@@ -1,0 +1,5 @@
+venv/
+models/
+결과/
+_work/
+__pycache__/

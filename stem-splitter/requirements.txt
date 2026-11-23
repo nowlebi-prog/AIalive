@@ -1,0 +1,6 @@
+audio-separator[gpu]
+audioread
+gradio>=5
+soundfile
+numpy
+static-ffmpeg
